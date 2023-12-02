@@ -1,45 +1,55 @@
-import puppeteer from "puppeteer";
+import puppetteer from "puppeteer";
 
-jest.setTimeout(30000);
+jest.setTimeout(30000); // default puppeteer timeout
 
-describe("in form", () => {
+describe("card validator form", () => {
   let browser;
   let page;
+  const baseUrl = "http://localhost:9000";
 
-  //запуск браузера
-  beforeEach(async () => {
-    browser = await puppeteer.launch({
-      //опции при запуске браузера
-      headless: false, //чтобы показывать реальный браузер
+  beforeAll(async () => {
+    browser = await puppetteer.launch({
+      headless: false, // чтобы показывать реальный браузер
       slowMo: 250,
-      // devtools: true,//чтобы видеть инструменты разработчика
+      // devtools: true, // чтобы видеть инструменты разработчика
     });
-
-    page = await browser.newPage();
+    page = await browser.newPage(); //браузер открывает страницу
   });
-
-  // закрыть браузер
+  //закрывает браузер
   afterAll(async () => {
     await browser.close();
   });
 
-  test("form should render on page", async () => {
-    await page.goto("http://localhost:9000");
-
-    await page.waitForSelector(".filter-widget-form"); //этот метод заставит браузер ждать появления селектора body
+  test("form should render on page start", async () => {
+    await page.goto(baseUrl);
+    await page.waitForSelector(".filter-widget-form"); //проверяет есть ли на странице форма
   });
 
-  test("valid form", async () => {
-    await page.goto("http://localhost:9000");
-
-    await page.waitForSelector(".filter-widget-form"); //этот метод заставит браузер ждать появления селектора body
-
+  //тест на валидность номера карты
+  test("checking valid code", async () => {
+    await page.goto(baseUrl);
     const form = await page.$(".filter-widget-form");
-    const input = await form.$(".form-control");
-    const button = await form.$(".btn");
+    const input = await page.$("input");
+    const button = await form.$("button");
     await input.type("2202200112561350");
     await button.click();
+    const result = await page.evaluate(
+      () => document.getElementById("result").textContent
+    );
+    await expect(result).toBe("Действующая карта");
+  });
 
-    await page.waitForSelector(".filter-widget-form");
+  //тест на невалидный номер карты
+  test("checking invalid code", async () => {
+    await page.goto(baseUrl);
+    const form = await page.$(".filter-widget-form");
+    const input = await page.$("input");
+    const button = await form.$("button");
+    await input.type("213467589");
+    await button.click();
+    const result = await page.evaluate(
+      () => document.getElementById("result").textContent
+    );
+    await expect(result).toBe("Введён некорректный номер карты!");
   });
 });

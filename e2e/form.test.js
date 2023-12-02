@@ -1,69 +1,45 @@
 import puppeteer from "puppeteer";
 
-describe("check type of card", () => {
+jest.setTimeout(30000);
+
+describe("in form", () => {
   let browser;
   let page;
 
-  jest.setTimeout(200000);
-
-  beforeAll(async () => {
-    //открыть браузер
+  //запуск браузера
+  beforeEach(async () => {
     browser = await puppeteer.launch({
-      // headless: false,
-      // slowMo: 100,
-      // devtools: true,
-      // env: {
-      //   DISPLAY: ":10.0",
-      // },
+      //опции при запуске браузера
+      headless: false, //чтобы показывать реальный браузер
+      slowMo: 250,
+      // devtools: true,//чтобы видеть инструменты разработчика
     });
 
-    //просим браузер открыть новую страницу
     page = await browser.newPage();
   });
 
-  //тесты
-  test("validation form should render on page start", async () => {
-    await page.goto("http://localhost:9000");
-
-    await page.waitForSelector(".validation-form");
-  });
-
-  test("card should be valid", async () => {
-    await page.goto("http://localhost:9000");
-
-    await page.waitForSelector(".validation-form");
-
-    const validationForm = await page.$(".validation-form");
-    const validationFormInput = await validationForm.$(
-      ".validation-form__input"
-    );
-    const validationFormBtn = await validationForm.$(".validation-form__btn");
-
-    await validationFormInput.type("6011111111111117");
-    await validationFormBtn.click();
-
-    await page.waitForSelector(".validation-form__valid.active");
-  });
-
-  test("card should be invalid", async () => {
-    await page.goto("http://localhost:9000");
-
-    await page.waitForSelector(".validation-form");
-
-    const validationForm = await page.$(".validation-form");
-    const validationFormInput = await validationForm.$(
-      ".validation-form__input"
-    );
-    const validationFormBtn = await validationForm.$(".validation-form__btn");
-
-    await validationFormInput.type("6011111111111115");
-    await validationFormBtn.click();
-
-    await page.waitForSelector(".validation-form__no-valid.active");
-  });
-
-  //закрыть браузер
+  // закрыть браузер
   afterAll(async () => {
     await browser.close();
+  });
+
+  test("form should render on page", async () => {
+    await page.goto("http://localhost:9000");
+
+    await page.waitForSelector(".filter-widget-form"); //этот метод заставит браузер ждать появления селектора body
+  });
+
+  test("valid form", async () => {
+    await page.goto("http://localhost:9000");
+
+    await page.waitForSelector(".filter-widget-form"); //этот метод заставит браузер ждать появления селектора body
+
+    const form = await page.$(".filter-widget-form");
+    const input = await form.$(".form-control");
+    const button = await form.$(".btn");
+    await input.type("2202200112561350");
+    await button.click();
+
+    await page.waitForSelector(".filter-widget-form");
   });
 });
