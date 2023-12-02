@@ -1,4 +1,5 @@
-import "./js/app";
-import "./styles/style.scss";
+import "./css/style.css";
 
-// TODO: write your code in app.js
+import "./js/app";
+import "./js/validators";
+import "./js/validCards";

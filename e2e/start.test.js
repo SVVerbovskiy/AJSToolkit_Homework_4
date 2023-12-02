@@ -3,29 +3,23 @@ import puppeteer from "puppeteer";
 describe("page start", () => {
   let browser;
   let page;
+  const baseUrl = "http://localhost:9000";
 
-  jest.setTimeout(200000);
-
-  beforeAll(async () => {
-    //открыть браузер
+  //запуск браузера
+  beforeEach(async () => {
     browser = await puppeteer.launch({
-      // headless: false,
-      // slowMo: 100,
-      // devtools: true,
-      // env: {
-      //   DISPLAY: ":10.0",
-      // },
+      //опции при запуске браузера
+      headless: false, //чтобы показывать реальный браузер
+      slowMo: 100,
+      devtools: true, //чтобы видеть инструменты разработчика
     });
 
-    //просим браузер открыть новую страницу
     page = await browser.newPage();
   });
 
-  //тесты
-  test("page rendering", async () => {
-    await page.goto("http://localhost:9000");
-
-    await page.waitForSelector("body");
+  test("test", async () => {
+    await page.goto(baseUrl);
+    await page.waitForSelector("body"); //этот метод заставит браузер ждать появления селектора body
   });
 
   //закрыть браузер
